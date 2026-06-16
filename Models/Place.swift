@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 
 struct Place: Identifiable, Codable, Equatable {
@@ -25,6 +26,12 @@ struct Place: Identifiable, Codable, Equatable {
         self.radius = radius
         self.category = category
         self.isEnabled = isEnabled
+    }
+}
+
+extension Place {
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }
 

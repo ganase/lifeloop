@@ -31,6 +31,7 @@ struct TriggerLog: Identifiable, Codable, Equatable {
 enum UserAction: String, Codable, CaseIterable, Identifiable {
     case ignored
     case opened
+    case mapOpened
     case completed
     case dismissed
 
@@ -42,6 +43,8 @@ enum UserAction: String, Codable, CaseIterable, Identifiable {
             return "未反応"
         case .opened:
             return "開いた"
+        case .mapOpened:
+            return "地図で開いた"
         case .completed:
             return "やった"
         case .dismissed:

@@ -2,6 +2,25 @@ import CoreLocation
 import Foundation
 
 final class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private enum PersistedRegionState: String, Codable {
+        case unknown
+        case inside
+        case outside
+
+        init?(_ state: CLRegionState) {
+            switch state {
+            case .inside:
+                self = .inside
+            case .outside:
+                self = .outside
+            case .unknown:
+                self = .unknown
+            @unknown default:
+                return nil
+            }
+        }
+    }
+
     @Published private(set) var authorizationStatus: CLAuthorizationStatus
     @Published private(set) var lastKnownLocation: CLLocation?
     @Published private(set) var monitoredRegionCount: Int = 0
@@ -9,11 +28,16 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
     var onRegionEvent: ((UUID, TriggerType) -> Void)?
     var onAuthorizationChanged: (() -> Void)?
 
+    private static let regionStateFileName = "region_states.json"
     private let manager = CLLocationManager()
+    private let store = LocalStore()
     private let maximumHabitRegions = 20
+    private var monitoredRegionIdentifiers: Set<String> = []
+    private var persistedRegionStates: [String: PersistedRegionState]
 
     override init() {
         authorizationStatus = manager.authorizationStatus
+        persistedRegionStates = store.load([String: PersistedRegionState].self, from: Self.regionStateFileName) ?? [:]
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
@@ -37,6 +61,7 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         guard CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self),
               authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse
         else {
+            monitoredRegionIdentifiers = []
             monitoredRegionCount = 0
             return
         }
@@ -44,6 +69,9 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         let enabledPlaces = places
             .filter { $0.isEnabled }
             .prefix(maximumHabitRegions)
+
+        monitoredRegionIdentifiers = Set(enabledPlaces.map { $0.id.uuidString })
+        prunePersistedRegionStates()
 
         for place in enabledPlaces {
             let center = CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude)
@@ -84,25 +112,94 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
 
+    private func persistRegionStates() {
+        store.save(persistedRegionStates, to: Self.regionStateFileName)
+    }
+
+    private func prunePersistedRegionStates() {
+        let previous = persistedRegionStates
+        persistedRegionStates = persistedRegionStates.filter { monitoredRegionIdentifiers.contains($0.key) }
+        if previous != persistedRegionStates {
+            persistRegionStates()
+        }
+    }
+
+    private func updatePersistedState(_ state: PersistedRegionState, for identifier: String) {
+        guard persistedRegionStates[identifier] != state else { return }
+        persistedRegionStates[identifier] = state
+        persistRegionStates()
+    }
+
+    private func refreshMonitoredRegionStates() {
+        for region in manager.monitoredRegions where monitoredRegionIdentifiers.contains(region.identifier) {
+            manager.requestState(for: region)
+        }
+    }
+
+    private func recoverEventIfNeeded(for region: CLRegion, newState: PersistedRegionState) {
+        guard monitoredRegionIdentifiers.contains(region.identifier) else { return }
+
+        let previousState = persistedRegionStates[region.identifier] ?? .unknown
+        updatePersistedState(newState, for: region.identifier)
+
+        switch (previousState, newState) {
+        case (.outside, .inside):
+            handle(region: region, triggerType: .enter)
+        case (.inside, .outside):
+            handle(region: region, triggerType: .exit)
+        default:
+            break
+        }
+    }
+
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         DispatchQueue.main.async { [weak self] in
             self?.authorizationStatus = manager.authorizationStatus
             self?.onAuthorizationChanged?()
+
+            if manager.authorizationStatus.allowsRegionMonitoring {
+                self?.requestCurrentLocation()
+            }
         }
     }
 
+    func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+        guard monitoredRegionIdentifiers.contains(region.identifier) else { return }
+        manager.requestState(for: region)
+    }
+
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        handle(region: region, triggerType: .enter)
+        let previousState = persistedRegionStates[region.identifier] ?? .unknown
+        updatePersistedState(.inside, for: region.identifier)
+
+        if previousState != .inside {
+            handle(region: region, triggerType: .enter)
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        handle(region: region, triggerType: .exit)
+        let previousState = persistedRegionStates[region.identifier] ?? .unknown
+        updatePersistedState(.outside, for: region.identifier)
+
+        if previousState != .outside {
+            handle(region: region, triggerType: .exit)
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
+        guard let persistedState = PersistedRegionState(state) else { return }
+        recoverEventIfNeeded(for: region, newState: persistedState)
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         DispatchQueue.main.async { [weak self] in
             self?.lastKnownLocation = locations.last
+            self?.refreshMonitoredRegionStates()
         }
+    }
+
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("LocationService monitoring failed: \(error)")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

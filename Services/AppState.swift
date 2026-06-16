@@ -2,6 +2,12 @@ import Foundation
 
 @MainActor
 final class AppState: ObservableObject {
+    struct MapSelection: Identifiable {
+        let placeId: UUID
+
+        var id: UUID { placeId }
+    }
+
     @Published var places: [Place] = [] {
         didSet {
             savePlaces()
@@ -27,16 +33,23 @@ final class AppState: ObservableObject {
         }
     }
 
+    @Published var mapSelection: MapSelection?
+
     let notificationService = NotificationService()
     let locationService = LocationService()
 
     private let store = LocalStore()
     private var hasBootstrapped = false
+    private let duplicateNotificationWindow: TimeInterval = 120
 
     init() {
-        notificationService.onResponse = { [weak self] logId, action in
+        notificationService.onResponse = { [weak self] logId, placeId, action in
             Task { @MainActor in
                 self?.updateLogAction(logId: logId, action: action)
+
+                if action == .mapOpened, let placeId {
+                    self?.showMap(for: placeId)
+                }
             }
         }
 
@@ -56,7 +69,7 @@ final class AppState: ObservableObject {
     func bootstrap() {
         guard !hasBootstrapped else { return }
 
-        places = store.load([Place].self, from: "places.json") ?? []
+        places = store.load([Place].self, from: "places.json") ?? PresetData.places
         courses = store.load([HabitCourse].self, from: "courses.json") ?? PresetData.courses
         rules = store.load([HabitRule].self, from: "rules.json") ?? PresetData.rules
         logs = store.load([TriggerLog].self, from: "logs.json") ?? []
@@ -65,6 +78,10 @@ final class AppState: ObservableObject {
         notificationService.refreshAuthorizationStatus()
         locationService.refreshAuthorizationStatus()
         syncRegionMonitoringIfReady()
+
+        if locationService.authorizationStatus.allowsRegionMonitoring {
+            requestCurrentLocation()
+        }
     }
 
     func requestNotificationPermission() {
@@ -103,49 +120,130 @@ final class AppState: ObservableObject {
         courses[index].isEnabled = isEnabled
     }
 
+    func updateRuleMessage(ruleId: UUID, message: String) {
+        guard let index = rules.firstIndex(where: { $0.id == ruleId }) else { return }
+        rules[index].message = message
+    }
+
+    func rule(for ruleId: UUID) -> HabitRule? {
+        rules.first { $0.id == ruleId }
+    }
+
+    func presetRuleMessage(for ruleId: UUID) -> String? {
+        PresetData.rules.first { $0.id == ruleId }?.message
+    }
+
     func testEnterTrigger(for place: Place) {
-        handleRegionEvent(placeId: place.id, triggerType: .enter)
+        handleRegionEvent(placeId: place.id, triggerType: .enter, suppressDuplicates: false)
     }
 
     func placeName(for placeId: UUID) -> String {
         places.first(where: { $0.id == placeId })?.name ?? "削除済みの場所"
     }
 
+    func place(for placeId: UUID) -> Place? {
+        places.first { $0.id == placeId }
+    }
+
+    func showMap(for placeId: UUID) {
+        guard place(for: placeId) != nil else { return }
+        requestCurrentLocation()
+        mapSelection = MapSelection(placeId: placeId)
+    }
+
     func courseName(for courseId: UUID?) -> String {
-        guard let courseId else { return "該当コースなし" }
+        guard let courseId else { return "共通通知" }
         return courses.first(where: { $0.id == courseId })?.name ?? "削除済みのコース"
     }
 
-    private func handleRegionEvent(placeId: UUID, triggerType: TriggerType) {
+    func refreshMonitoringState() {
+        locationService.refreshAuthorizationStatus()
+        syncRegionMonitoringIfReady()
+
+        if locationService.authorizationStatus.allowsRegionMonitoring {
+            requestCurrentLocation()
+        }
+    }
+
+    private func handleRegionEvent(placeId: UUID, triggerType: TriggerType, suppressDuplicates: Bool = true) {
         guard let place = places.first(where: { $0.id == placeId && $0.isEnabled }) else { return }
 
-        guard let match = RuleEngine.bestMatch(
+        let match = RuleEngine.bestMatch(
             for: place,
             triggerType: triggerType,
             date: Date(),
             courses: courses,
             rules: rules
-        ) else {
+        )
+
+        guard let payload = notificationPayload(for: place, triggerType: triggerType, match: match) else {
+            return
+        }
+
+        if suppressDuplicates && isDuplicateEvent(for: place.id, triggerType: triggerType) {
             return
         }
 
         let log = TriggerLog(
             placeId: place.id,
-            courseId: match.course.id,
+            courseId: payload.courseId,
             triggerType: triggerType,
-            message: match.message
+            message: payload.message
         )
 
         logs.insert(log, at: 0)
         logs = Array(logs.prefix(200))
 
         notificationService.deliver(
-            title: match.course.name,
-            body: match.message,
+            title: payload.title,
+            body: payload.message,
             logId: log.id,
             placeId: place.id,
-            courseId: match.course.id
+            courseId: payload.courseId
         )
+    }
+
+    private func notificationPayload(for place: Place, triggerType: TriggerType, match: RuleMatch?) -> (title: String, message: String, courseId: UUID?)? {
+        if let match {
+            return (match.course.name, match.message, match.course.id)
+        }
+
+        guard triggerType == .enter,
+              courses.contains(where: { $0.isEnabled && $0.targetCategories.contains(place.category) })
+        else {
+            return nil
+        }
+
+        return ("Spotus", fallbackMessage(for: place), nil)
+    }
+
+    private func fallbackMessage(for place: Place) -> String {
+        switch place.category {
+        case .home:
+            return "帰宅しました。今日の小さな習慣を1つだけ進めましょう。"
+        case .station:
+            return "\(place.name)に着きました。移動時間で5分だけ習慣を進めましょう。"
+        case .office:
+            return "\(place.name)に着きました。最初の5分で一番大事なことから始めましょう。"
+        case .gym:
+            return "ジムに着きました。まず5分だけ体を動かしましょう。"
+        case .library:
+            return "図書館に着きました。まず10分だけ静かな時間を作りましょう。"
+        case .barArea:
+            return "\(place.name)に着きました。今日はどう過ごしたいかを1回だけ思い出しましょう。"
+        case .convenienceStore:
+            return "\(place.name)に着きました。買う前に、本当に必要なものだけ確認しましょう。"
+        case .other:
+            return "\(place.name)に着きました。1分だけでも習慣を進めましょう。"
+        }
+    }
+
+    private func isDuplicateEvent(for placeId: UUID, triggerType: TriggerType) -> Bool {
+        guard let latestLog = logs.first(where: { $0.placeId == placeId && $0.triggerType == triggerType }) else {
+            return false
+        }
+
+        return Date().timeIntervalSince(latestLog.triggeredAt) < duplicateNotificationWindow
     }
 
     private func updateLogAction(logId: UUID, action: UserAction) {

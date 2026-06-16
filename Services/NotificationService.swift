@@ -2,12 +2,13 @@ import Foundation
 import UserNotifications
 
 final class NotificationService: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
-    static let categoryIdentifier = "HABIT_ROUTE_ACTIONS"
-    static let completedActionIdentifier = "HABIT_ROUTE_COMPLETED"
+    static let categoryIdentifier = "SPOTUS_ACTIONS"
+    static let completedActionIdentifier = "SPOTUS_COMPLETED"
+    static let mapActionIdentifier = "SPOTUS_SHOW_MAP"
 
     @Published private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
-    var onResponse: ((UUID, UserAction) -> Void)?
+    var onResponse: ((UUID, UUID?, UserAction) -> Void)?
 
     private let center = UNUserNotificationCenter.current()
 
@@ -50,6 +51,12 @@ final class NotificationService: NSObject, ObservableObject, UNUserNotificationC
     }
 
     private func configureCategories() {
+        let showMap = UNNotificationAction(
+            identifier: Self.mapActionIdentifier,
+            title: "地図で見る",
+            options: [.foreground]
+        )
+
         let completed = UNNotificationAction(
             identifier: Self.completedActionIdentifier,
             title: "やった",
@@ -58,7 +65,7 @@ final class NotificationService: NSObject, ObservableObject, UNUserNotificationC
 
         let category = UNNotificationCategory(
             identifier: Self.categoryIdentifier,
-            actions: [completed],
+            actions: [showMap, completed],
             intentIdentifiers: [],
             options: [.customDismissAction]
         )
@@ -81,14 +88,20 @@ final class NotificationService: NSObject, ObservableObject, UNUserNotificationC
     ) {
         defer { completionHandler() }
 
-        guard let logIdString = response.notification.request.content.userInfo["logId"] as? String,
+        let userInfo = response.notification.request.content.userInfo
+
+        guard let logIdString = userInfo["logId"] as? String,
               let logId = UUID(uuidString: logIdString)
         else {
             return
         }
 
+        let placeId = (userInfo["placeId"] as? String).flatMap(UUID.init(uuidString:))
+
         let action: UserAction
         switch response.actionIdentifier {
+        case Self.mapActionIdentifier:
+            action = .mapOpened
         case Self.completedActionIdentifier:
             action = .completed
         case UNNotificationDismissActionIdentifier:
@@ -98,7 +111,7 @@ final class NotificationService: NSObject, ObservableObject, UNUserNotificationC
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.onResponse?(logId, action)
+            self?.onResponse?(logId, placeId, action)
         }
     }
 }

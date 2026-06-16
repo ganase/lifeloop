@@ -8,6 +8,33 @@ enum PresetData {
     static let spendingCourseId = UUID(uuidString: "55555555-5555-5555-5555-555555555555")!
     static let commuteCourseId = UUID(uuidString: "66666666-6666-6666-6666-666666666666")!
 
+    static let places: [Place] = [
+        Place(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            name: "自宅",
+            latitude: 35.681236,
+            longitude: 139.767125,
+            radius: 150,
+            category: .home
+        ),
+        Place(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            name: "最寄駅",
+            latitude: 35.681382,
+            longitude: 139.766084,
+            radius: 150,
+            category: .station
+        ),
+        Place(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000003")!,
+            name: "ジム",
+            latitude: 35.682839,
+            longitude: 139.759455,
+            radius: 150,
+            category: .gym
+        )
+    ]
+
     static let courses: [HabitCourse] = [
         HabitCourse(
             id: readingCourseId,

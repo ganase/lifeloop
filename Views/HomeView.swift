@@ -1,4 +1,5 @@
 import CoreLocation
+import MapKit
 import SwiftUI
 
 struct HomeView: View {
@@ -8,17 +9,12 @@ struct HomeView: View {
         appState.courses.filter(\.isEnabled)
     }
 
-    private var recentLogs: [TriggerLog] {
-        Array(appState.logs.prefix(5))
-    }
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                permissionCard
+                mapCard
                 courseCard
-                placeCard
-                todayLogCard
+                permissionCard
             }
             .padding()
         }
@@ -103,7 +99,7 @@ struct HomeView: View {
         .cardStyle()
     }
 
-    private var placeCard: some View {
+    private var mapCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("登録地点")
@@ -119,10 +115,22 @@ struct HomeView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
+                PlacesOverviewMap(places: appState.places.filter(\.isEnabled))
+                    .frame(height: 360)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
                 ForEach(appState.places.prefix(5)) { place in
                     HStack {
                         Label(place.name, systemImage: place.category.systemImage)
                         Spacer()
+                        Button {
+                            appState.showMap(for: place.id)
+                        } label: {
+                            Image(systemName: "map")
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel("\(place.name)を地図で見る")
+
                         Text(place.isEnabled ? "ON" : "OFF")
                             .font(.caption)
                             .foregroundStyle(place.isEnabled ? .green : .secondary)
@@ -132,34 +140,131 @@ struct HomeView: View {
         }
         .cardStyle()
     }
+}
 
-    private var todayLogCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("今日通知された行動")
-                .font(.headline)
+struct PlacesOverviewMap: View {
+    let places: [Place]
+    @State private var position: MapCameraPosition
 
-            if recentLogs.isEmpty {
-                Text("まだ通知ログはありません。Place画面のテスト通知で動作確認できます。")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(recentLogs) { log in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(log.message)
-                            .font(.subheadline)
-                        HStack {
-                            Text(appState.placeName(for: log.placeId))
-                            Text(log.userAction.displayName)
-                        }
-                        .font(.caption)
+    init(places: [Place]) {
+        self.places = places
+        _position = State(initialValue: PlacesOverviewMap.initialPosition(for: places))
+    }
+
+    var body: some View {
+        Map(position: $position) {
+            UserAnnotation()
+
+            ForEach(places) { place in
+                MapCircle(center: place.coordinate, radius: place.radius)
+                    .foregroundStyle(Color.accentColor.opacity(0.12))
+                    .stroke(Color.accentColor.opacity(0.7), lineWidth: 1)
+
+                Marker(place.name, systemImage: place.category.systemImage, coordinate: place.coordinate)
+            }
+        }
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+        }
+    }
+
+    private static func initialPosition(for places: [Place]) -> MapCameraPosition {
+        guard let firstPlace = places.first else {
+            return .automatic
+        }
+
+        let coordinates = places.map(\.coordinate)
+        let minLatitude = coordinates.map(\.latitude).min() ?? firstPlace.latitude
+        let maxLatitude = coordinates.map(\.latitude).max() ?? firstPlace.latitude
+        let minLongitude = coordinates.map(\.longitude).min() ?? firstPlace.longitude
+        let maxLongitude = coordinates.map(\.longitude).max() ?? firstPlace.longitude
+        let center = CLLocationCoordinate2D(
+            latitude: (minLatitude + maxLatitude) / 2,
+            longitude: (minLongitude + maxLongitude) / 2
+        )
+        let northSouthMeters = max(CLLocation(latitude: minLatitude, longitude: center.longitude).distance(
+            from: CLLocation(latitude: maxLatitude, longitude: center.longitude)
+        ), 700)
+        let eastWestMeters = max(CLLocation(latitude: center.latitude, longitude: minLongitude).distance(
+            from: CLLocation(latitude: center.latitude, longitude: maxLongitude)
+        ), 700)
+
+        return .region(
+            MKCoordinateRegion(
+                center: center,
+                latitudinalMeters: northSouthMeters * 1.6,
+                longitudinalMeters: eastWestMeters * 1.6
+            )
+        )
+    }
+}
+
+struct PlaceMapDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var appState: AppState
+
+    let place: Place
+    @State private var position: MapCameraPosition
+
+    init(place: Place) {
+        self.place = place
+        let spanMeters = max(place.radius * 5, 700)
+        _position = State(initialValue: .region(
+            MKCoordinateRegion(
+                center: place.coordinate,
+                latitudinalMeters: spanMeters,
+                longitudinalMeters: spanMeters
+            )
+        ))
+    }
+
+    var body: some View {
+        NavigationStack {
+            Map(position: $position) {
+                UserAnnotation()
+
+                Marker(place.name, systemImage: place.category.systemImage, coordinate: place.coordinate)
+
+                MapCircle(center: place.coordinate, radius: place.radius)
+                    .foregroundStyle(Color.accentColor.opacity(0.16))
+                    .stroke(Color.accentColor, lineWidth: 2)
+            }
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+                MapScaleView()
+            }
+            .safeAreaInset(edge: .bottom) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(place.name)
+                        .font(.headline)
+                    Text("\(place.category.displayName) / 半径 \(Int(place.radius))m")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(.regularMaterial)
+            }
+            .navigationTitle("地図")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("閉じる") {
+                        dismiss()
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 4)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        appState.requestCurrentLocation()
+                    } label: {
+                        Label("現在地", systemImage: "location")
+                    }
                 }
             }
         }
-        .cardStyle()
     }
 }
 

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct RootTabView: View {
+    @EnvironmentObject private var appState: AppState
+
     var body: some View {
         TabView {
             NavigationStack {
@@ -36,6 +38,14 @@ struct RootTabView: View {
             }
             .tabItem {
                 Label("Log", systemImage: "clock.arrow.circlepath")
+            }
+        }
+        .sheet(item: $appState.mapSelection) { selection in
+            if let place = appState.place(for: selection.placeId) {
+                PlaceMapDetailView(place: place)
+                    .environmentObject(appState)
+            } else {
+                ContentUnavailableView("場所が見つかりません", systemImage: "mappin.slash")
             }
         }
     }
