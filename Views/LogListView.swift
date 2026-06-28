@@ -179,6 +179,11 @@ struct LogListView: View {
         let stepName = actSummary.isEmpty ? log.message : "\(placeName) / \(actSummary)"
 
         return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "checklist")
+                .font(.title3.weight(.semibold))
+                .frame(width: 24, alignment: .leading)
+                .accessibilityHidden(true)
+
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 8) {
                     Text(appState.courseName(for: log.courseId))
@@ -198,16 +203,27 @@ struct LogListView: View {
 
             Spacer()
 
-            headerStatusBadge(log.userAction)
+            headerStatusBadge(log.userAction, isResolved: isResolved)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(logHeaderBackground)
-        .foregroundStyle(logHeaderForeground)
+        .background(logHeaderBackground(isResolved: isResolved))
+        .foregroundStyle(logHeaderForeground(isResolved: isResolved))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    private var logHeaderBackground: Color {
+    private func logHeaderBackground(isResolved: Bool) -> Color {
+        if isResolved {
+            switch appState.appTheme {
+            case .dark:
+                return Color.white.opacity(0.10)
+            case .gray:
+                return Color(red: 0.72, green: 0.76, blue: 0.82)
+            case .plain:
+                return Color.secondary.opacity(0.16)
+            }
+        }
+
         switch appState.appTheme {
         case .dark:
             return Color.white.opacity(0.16)
@@ -218,7 +234,11 @@ struct LogListView: View {
         }
     }
 
-    private var logHeaderForeground: Color {
+    private func logHeaderForeground(isResolved: Bool) -> Color {
+        if isResolved {
+            return .secondary
+        }
+
         switch appState.appTheme {
         case .dark:
             return .primary
@@ -227,17 +247,26 @@ struct LogListView: View {
         }
     }
 
-    private func headerStatusBadge(_ userAction: UserAction) -> some View {
+    private func headerStatusBadge(_ userAction: UserAction, isResolved: Bool) -> some View {
         Label(userAction.displayName, systemImage: userAction.statusIcon)
             .font(.caption.weight(.bold))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(headerBadgeBackground)
-            .foregroundStyle(headerBadgeForeground)
+            .background(headerBadgeBackground(isResolved: isResolved))
+            .foregroundStyle(headerBadgeForeground(isResolved: isResolved))
             .clipShape(Capsule())
     }
 
-    private var headerBadgeBackground: Color {
+    private func headerBadgeBackground(isResolved: Bool) -> Color {
+        if isResolved {
+            switch appState.appTheme {
+            case .dark:
+                return Color.white.opacity(0.08)
+            case .gray, .plain:
+                return Color.white.opacity(0.55)
+            }
+        }
+
         switch appState.appTheme {
         case .dark:
             return Color.primary.opacity(0.10)
@@ -246,7 +275,11 @@ struct LogListView: View {
         }
     }
 
-    private var headerBadgeForeground: Color {
+    private func headerBadgeForeground(isResolved: Bool) -> Color {
+        if isResolved {
+            return .secondary
+        }
+
         switch appState.appTheme {
         case .dark:
             return .primary
@@ -554,10 +587,8 @@ private struct StepRegistryRow: View {
     let groupingMode: StepGroupingMode
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: rowSystemImage)
-                .foregroundStyle(.blue)
-                .frame(width: 24)
+        HStack(alignment: .top, spacing: 12) {
+            stepIconChain
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(rowTitle)
@@ -578,6 +609,30 @@ private struct StepRegistryRow: View {
         .padding(.vertical, 4)
     }
 
+    @ViewBuilder
+    private var stepIconChain: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "checklist")
+                .foregroundStyle(.blue)
+
+            switch groupingMode {
+            case .place:
+                Image(systemName: appState.rulePlaceSystemImage(step))
+                    .foregroundStyle(.blue)
+                Image(systemName: "list.bullet.rectangle")
+                    .foregroundStyle(.secondary)
+            case .act:
+                Image(systemName: "list.bullet.rectangle")
+                    .foregroundStyle(.blue)
+                Image(systemName: appState.rulePlaceSystemImage(step))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .font(.subheadline.weight(.semibold))
+        .frame(width: 70, alignment: .leading)
+        .accessibilityHidden(true)
+    }
+
     private var rowTitle: String {
         switch groupingMode {
         case .place:
@@ -587,14 +642,6 @@ private struct StepRegistryRow: View {
         }
     }
 
-    private var rowSystemImage: String {
-        switch groupingMode {
-        case .place:
-            return "list.bullet.rectangle"
-        case .act:
-            return appState.rulePlaceSystemImage(step)
-        }
-    }
 }
 
 private struct StepCreateView: View {
