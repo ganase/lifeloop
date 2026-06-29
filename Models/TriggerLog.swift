@@ -82,17 +82,24 @@ struct StepTask: Identifiable, Codable, Equatable {
     var id: UUID
     var title: String
     var isCompleted: Bool
+    var userAction: UserAction?
 
-    init(id: UUID = UUID(), title: String, isCompleted: Bool = false) {
+    var isResolved: Bool {
+        isCompleted || userAction?.isResolved == true
+    }
+
+    init(id: UUID = UUID(), title: String, isCompleted: Bool = false, userAction: UserAction? = nil) {
         self.id = id
         self.title = title
         self.isCompleted = isCompleted
+        self.userAction = userAction
     }
 
     init(ruleTask: RuleTask) {
         id = ruleTask.id
         title = ruleTask.title
         isCompleted = false
+        userAction = nil
     }
 }
 

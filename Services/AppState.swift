@@ -530,6 +530,7 @@ final class AppState: ObservableObject {
         logs[index].tasks = logs[index].tasks.map { task in
             var editableTask = task
             editableTask.isCompleted = false
+            editableTask.userAction = nil
             return editableTask
         }
         openSteps(for: logId)
@@ -557,7 +558,18 @@ final class AppState: ObservableObject {
         ensureLogTasks(at: index)
         guard let taskIndex = logs[index].tasks.firstIndex(where: { $0.id == taskId }) else { return }
         logs[index].tasks[taskIndex].isCompleted = true
-        markStepCompleteIfReady(at: index)
+        logs[index].tasks[taskIndex].userAction = .didAction
+        markStepResolvedIfReady(at: index)
+        openSteps(for: logId)
+    }
+
+    func avoidStepTask(logId: UUID, taskId: UUID) {
+        guard let index = logs.firstIndex(where: { $0.id == logId }) else { return }
+        ensureLogTasks(at: index)
+        guard let taskIndex = logs[index].tasks.firstIndex(where: { $0.id == taskId }) else { return }
+        logs[index].tasks[taskIndex].isCompleted = false
+        logs[index].tasks[taskIndex].userAction = .avoidedAction
+        markStepResolvedIfReady(at: index)
         openSteps(for: logId)
     }
 
@@ -565,7 +577,7 @@ final class AppState: ObservableObject {
         guard let index = logs.firstIndex(where: { $0.id == logId }) else { return }
         ensureLogTasks(at: index)
         logs[index].tasks.removeAll { $0.id == taskId }
-        markStepCompleteIfReady(at: index)
+        markStepResolvedIfReady(at: index)
         openSteps(for: logId)
     }
 
@@ -812,6 +824,15 @@ final class AppState: ObservableObject {
     private func updateLogAction(logId: UUID, action: UserAction) {
         guard let index = logs.firstIndex(where: { $0.id == logId }) else { return }
         logs[index].userAction = mergeUserAction(current: logs[index].userAction, incoming: action)
+
+        guard action.isResolved else { return }
+        ensureLogTasks(at: index)
+        logs[index].tasks = logs[index].tasks.map { task in
+            var respondedTask = task
+            respondedTask.userAction = action == .avoidedAction ? .avoidedAction : .didAction
+            respondedTask.isCompleted = action != .avoidedAction
+            return respondedTask
+        }
     }
 
     private func normalizeCourses(_ courses: [HabitCourse]) -> [HabitCourse] {
@@ -895,6 +916,22 @@ final class AppState: ObservableObject {
 
             if normalizedLog.tasks.isEmpty {
                 normalizedLog.tasks = [fallbackStepTask(for: normalizedLog)]
+            } else if normalizedLog.userAction.isResolved {
+                normalizedLog.tasks = normalizedLog.tasks.map { task in
+                    var normalizedTask = task
+
+                    if normalizedTask.userAction == nil {
+                        normalizedTask.userAction = normalizedLog.userAction == .avoidedAction ? .avoidedAction : .didAction
+                    }
+
+                    if normalizedLog.userAction == .avoidedAction {
+                        normalizedTask.isCompleted = false
+                    } else {
+                        normalizedTask.isCompleted = true
+                    }
+
+                    return normalizedTask
+                }
             }
 
             return normalizedLog
@@ -1093,21 +1130,25 @@ final class AppState: ObservableObject {
     }
 
     private func fallbackStepTask(for log: TriggerLog) -> StepTask {
-        StepTask(
+        let resolvedAction = log.userAction.isResolved ? log.userAction : nil
+        return StepTask(
             title: actionGuide(for: log).doText,
-            isCompleted: log.userAction == .completed || log.userAction == .didAction
+            isCompleted: log.userAction == .completed || log.userAction == .didAction,
+            userAction: resolvedAction
         )
     }
 
-    private func markStepCompleteIfReady(at index: Int) {
+    private func markStepResolvedIfReady(at index: Int) {
         guard logs.indices.contains(index),
               !logs[index].tasks.isEmpty,
-              logs[index].tasks.allSatisfy(\.isCompleted)
+              logs[index].tasks.allSatisfy(\.isResolved)
         else {
             return
         }
 
-        logs[index].userAction = mergeUserAction(current: logs[index].userAction, incoming: .didAction)
+        let hasAvoidedTask = logs[index].tasks.contains { $0.userAction == .avoidedAction }
+        let resolvedAction: UserAction = hasAvoidedTask ? .avoidedAction : .didAction
+        logs[index].userAction = mergeUserAction(current: logs[index].userAction, incoming: resolvedAction)
     }
 
     private func normalizedMessage(_ message: String) -> String {

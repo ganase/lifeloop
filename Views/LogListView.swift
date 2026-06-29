@@ -121,7 +121,7 @@ struct LogListView: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(log.tasks) { task in
-                        taskRow(log: log, task: task, isResolved: isResolved)
+                        taskRow(log: log, task: task, isLogResolved: isResolved)
 
                         if task.id != log.tasks.last?.id {
                             Divider()
@@ -288,23 +288,26 @@ struct LogListView: View {
         }
     }
 
-    private func taskRow(log: TriggerLog, task: StepTask, isResolved: Bool) -> some View {
-        HStack(spacing: 12) {
+    private func taskRow(log: TriggerLog, task: StepTask, isLogResolved: Bool) -> some View {
+        let isTaskResolved = task.isResolved
+        let isAvoided = task.userAction == .avoidedAction
+
+        return HStack(spacing: 12) {
             Button {
-                appState.markAvoidedAction(logId: log.id)
+                appState.avoidStepTask(logId: log.id, taskId: task.id)
             } label: {
-                Image(systemName: "hand.thumbsdown")
+                Image(systemName: isAvoided ? "hand.thumbsdown.fill" : "hand.thumbsdown")
                     .font(.title3)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-            .disabled(isResolved)
-            .accessibilityLabel("実行しなかった")
+            .foregroundStyle(Color.secondary.opacity(isAvoided ? 1 : 0.75))
+            .disabled(isLogResolved || isTaskResolved)
+            .accessibilityLabel(isAvoided ? "実行しなかった記録済み" : "実行しなかった")
 
             Text(task.title)
                 .font(.subheadline)
-                .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                .foregroundStyle(isTaskResolved ? .secondary : .primary)
                 .strikethrough(task.isCompleted)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -317,11 +320,12 @@ struct LogListView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(task.isCompleted ? .blue : .secondary)
-            .disabled(isResolved || task.isCompleted)
+            .disabled(isLogResolved || isTaskResolved)
             .accessibilityLabel(task.isCompleted ? "実行済み" : "実行した")
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
+        .opacity(isTaskResolved ? 0.56 : 1)
     }
 
     private func detailRow(title: String, value: String) -> some View {
@@ -588,7 +592,11 @@ private struct StepRegistryRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            stepIconChain
+            Image(systemName: "checklist")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.blue)
+                .frame(width: 24, alignment: .leading)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(rowTitle)
@@ -607,30 +615,6 @@ private struct StepRegistryRow: View {
             }
         }
         .padding(.vertical, 4)
-    }
-
-    @ViewBuilder
-    private var stepIconChain: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "checklist")
-                .foregroundStyle(.blue)
-
-            switch groupingMode {
-            case .place:
-                Image(systemName: appState.rulePlaceSystemImage(step))
-                    .foregroundStyle(.blue)
-                Image(systemName: "list.bullet.rectangle")
-                    .foregroundStyle(.secondary)
-            case .act:
-                Image(systemName: "list.bullet.rectangle")
-                    .foregroundStyle(.blue)
-                Image(systemName: appState.rulePlaceSystemImage(step))
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .font(.subheadline.weight(.semibold))
-        .frame(width: 70, alignment: .leading)
-        .accessibilityHidden(true)
     }
 
     private var rowTitle: String {
