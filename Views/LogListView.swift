@@ -592,14 +592,10 @@ private struct StepRegistryRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "checklist")
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.blue)
-                .frame(width: 24, alignment: .leading)
-                .accessibilityHidden(true)
+            StepBadgeIcon()
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(rowTitle)
+                Label(rowTitle, systemImage: rowSystemImage)
                     .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(3)
@@ -626,6 +622,27 @@ private struct StepRegistryRow: View {
         }
     }
 
+    private var rowSystemImage: String {
+        switch groupingMode {
+        case .place:
+            return "list.bullet.rectangle"
+        case .act:
+            return appState.rulePlaceSystemImage(step)
+        }
+    }
+
+}
+
+struct StepBadgeIcon: View {
+    var body: some View {
+        Image(systemName: "checklist")
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.blue)
+            .frame(width: 24, height: 24)
+            .background(Color.blue.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .accessibilityHidden(true)
+    }
 }
 
 private struct StepCreateView: View {
@@ -650,6 +667,20 @@ private struct StepCreateView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: "Stepを追加",
+                    subtitle: stepPreview,
+                    detail: "Placeに入ったときに通知するActを組み合わせます。Stepには複数のActを入れられます。",
+                    systemImage: "checklist",
+                    badges: [
+                        EditorContextBadge(title: "Step", systemImage: "checklist"),
+                        EditorContextBadge(title: "Place", systemImage: selectedPlaceSystemImage),
+                        EditorContextBadge(title: "\(normalizedActTitles.count) Act", systemImage: "list.bullet.rectangle")
+                    ]
+                )
+            }
+
             Section("Place") {
                 Picker("Place", selection: $selectedPlaceId) {
                     Text("選択")
@@ -663,31 +694,29 @@ private struct StepCreateView: View {
             }
 
             actSection
+
+            Section {
+                EditorActionBar(
+                    canSave: canSave,
+                    onSave: {
+                        guard let selectedPlaceId else { return }
+                        appState.addStep(
+                            placeId: selectedPlaceId,
+                            actTitles: normalizedActTitles
+                        )
+                        dismiss()
+                    },
+                    onCancel: {
+                        dismiss()
+                    }
+                )
+            }
         }
         .themedScreenBackground()
         .navigationTitle("Stepを追加")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             selectedPlaceId = selectedPlaceId ?? appState.places.first?.id
-        }
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("キャンセル") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button("追加") {
-                    guard let selectedPlaceId else { return }
-                    appState.addStep(
-                        placeId: selectedPlaceId,
-                        actTitles: normalizedActTitles
-                    )
-                    dismiss()
-                }
-                .disabled(!canSave)
-            }
         }
     }
 
@@ -747,6 +776,26 @@ private struct StepCreateView: View {
         }
         newActTitle = ""
     }
+
+    private var selectedPlace: Place? {
+        guard let selectedPlaceId else { return nil }
+        return appState.places.first { $0.id == selectedPlaceId }
+    }
+
+    private var selectedPlaceName: String {
+        selectedPlace?.name ?? "Place未選択"
+    }
+
+    private var selectedPlaceSystemImage: String {
+        selectedPlace?.category.systemImage ?? "mappin.and.ellipse"
+    }
+
+    private var stepPreview: String {
+        if normalizedActTitles.isEmpty {
+            return "\(selectedPlaceName) / Act未設定"
+        }
+        return "\(selectedPlaceName) / \(normalizedActTitles.joined(separator: " / "))"
+    }
 }
 
 private struct StepEditorCard: View {
@@ -776,11 +825,25 @@ private struct StepEditorCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            EditorContextHeader(
+                title: "Stepを編集",
+                subtitle: stepPreview,
+                detail: "通知条件になるPlaceと、その場所で促すActを調整します。",
+                systemImage: "checklist",
+                badges: [
+                    EditorContextBadge(title: "Step", systemImage: "checklist"),
+                    EditorContextBadge(title: "Place", systemImage: selectedPlaceSystemImage),
+                    EditorContextBadge(title: "\(normalizedActTitles.count) Act", systemImage: "list.bullet.rectangle")
+                ],
+                compact: true
+            )
+
             HStack {
-                Text("Step編集")
-                    .font(.headline)
+                Label("このStepを使う", systemImage: isEnabled ? "checkmark.circle.fill" : "pause.circle")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(isEnabled ? .blue : .secondary)
                 Spacer()
-                Toggle("", isOn: $isEnabled)
+                Toggle("このStepを使う", isOn: $isEnabled)
                     .labelsHidden()
             }
 
@@ -890,6 +953,26 @@ private struct StepEditorCard: View {
         isEnabled = step.isEnabled
         newActTitle = ""
     }
+
+    private var selectedPlace: Place? {
+        guard let selectedPlaceId else { return nil }
+        return appState.places.first { $0.id == selectedPlaceId }
+    }
+
+    private var selectedPlaceName: String {
+        selectedPlace?.name ?? "Place未選択"
+    }
+
+    private var selectedPlaceSystemImage: String {
+        selectedPlace?.category.systemImage ?? "mappin.and.ellipse"
+    }
+
+    private var stepPreview: String {
+        if normalizedActTitles.isEmpty {
+            return "\(selectedPlaceName) / Act未設定"
+        }
+        return "\(selectedPlaceName) / \(normalizedActTitles.joined(separator: " / "))"
+    }
 }
 
 private struct SnoozeEditorView: View {
@@ -902,6 +985,19 @@ private struct SnoozeEditorView: View {
     var body: some View {
         Form {
             Section {
+                EditorContextHeader(
+                    title: "スヌーズを設定",
+                    subtitle: log.tasks.map(\.title).filter { !$0.isEmpty }.joined(separator: " / "),
+                    detail: "このStepのログを、指定した時刻にもう一度通知します。",
+                    systemImage: "alarm",
+                    badges: [
+                        EditorContextBadge(title: "Log", systemImage: "rectangle.and.pencil.and.ellipsis"),
+                        EditorContextBadge(title: "再通知", systemImage: "alarm")
+                    ]
+                )
+            }
+
+            Section {
                 DatePicker(
                     "再通知時刻",
                     selection: $snoozeDate,
@@ -911,23 +1007,22 @@ private struct SnoozeEditorView: View {
             } footer: {
                 Text("指定した時刻に同じStepをもう一度通知します。")
             }
+
+            Section {
+                EditorActionBar(
+                    canSave: true,
+                    onSave: {
+                        onSave()
+                        dismiss()
+                    },
+                    onCancel: {
+                        dismiss()
+                    }
+                )
+            }
         }
         .navigationTitle("スヌーズ")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("キャンセル") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button("保存") {
-                    onSave()
-                    dismiss()
-                }
-            }
-        }
     }
 }
 
@@ -1021,6 +1116,83 @@ struct UnifiedEditLabel: View {
             .background(Color.blue.opacity(0.14))
             .foregroundStyle(.blue)
             .clipShape(Capsule())
+    }
+}
+
+struct EditorContextBadge: Identifiable {
+    let id = UUID()
+    let title: String
+    let systemImage: String
+}
+
+struct EditorContextHeader: View {
+    let title: String
+    let subtitle: String?
+    let detail: String
+    let systemImage: String
+    let badges: [EditorContextBadge]
+    let compact: Bool
+
+    init(
+        title: String,
+        subtitle: String? = nil,
+        detail: String,
+        systemImage: String,
+        badges: [EditorContextBadge] = [],
+        compact: Bool = false
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.detail = detail
+        self.systemImage = systemImage
+        self.badges = badges
+        self.compact = compact
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.blue)
+                .frame(width: 32, height: 32)
+                .background(Color.blue.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text(title)
+                    .font(.headline)
+
+                if let subtitle, !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                }
+
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if !badges.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(badges) { badge in
+                            Label(badge.title, systemImage: badge.systemImage)
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.blue.opacity(0.10))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(compact ? 0 : 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 

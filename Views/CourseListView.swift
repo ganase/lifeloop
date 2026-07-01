@@ -89,7 +89,21 @@ struct CourseSettingsView: View {
 
     var body: some View {
         Form {
-            if appState.course(for: courseId) != nil {
+            if let course = appState.course(for: courseId) {
+                Section {
+                    EditorContextHeader(
+                        title: "Course設定",
+                        subtitle: course.name,
+                        detail: "Courseの名前、曜日、時間帯、含めるStepを調整します。この画面の変更は自動保存されます。",
+                        systemImage: "figure.walk.motion",
+                        badges: [
+                            EditorContextBadge(title: "Course", systemImage: "figure.walk.motion"),
+                            EditorContextBadge(title: "自動保存", systemImage: "checkmark.icloud"),
+                            EditorContextBadge(title: "\(appState.courseSteps(for: courseId).count) Steps", systemImage: "checklist")
+                        ]
+                    )
+                }
+
                 Section {
                     TextField("Course名", text: nameBinding, axis: .vertical)
                         .lineLimit(1...2)
@@ -261,16 +275,15 @@ private struct CourseStepRowView: View {
     let step: HabitRule
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: appState.rulePlaceSystemImage(step))
-                .foregroundStyle(.blue)
-                .frame(width: 24)
+        HStack(alignment: .top, spacing: 12) {
+            StepBadgeIcon()
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(appState.rulePlaceDisplayName(step))
+                Label(appState.rulePlaceDisplayName(step), systemImage: appState.rulePlaceSystemImage(step))
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
 
-                Text(appState.ruleActTitle(step))
+                Label(appState.ruleActTitle(step), systemImage: "list.bullet.rectangle")
                     .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(3)
@@ -345,6 +358,20 @@ private struct CourseStepEditorView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: title,
+                    subtitle: stepPreview,
+                    detail: "Courseに入れるStepです。Placeに入ったとき、そのStep内のActだけを通知します。",
+                    systemImage: "checklist",
+                    badges: [
+                        EditorContextBadge(title: "Step", systemImage: "checklist"),
+                        EditorContextBadge(title: "Place", systemImage: selectedPlaceSystemImage),
+                        EditorContextBadge(title: "\(normalizedActTitles.count) Act", systemImage: "list.bullet.rectangle")
+                    ]
+                )
+            }
+
             Section("Place") {
                 Picker("Place", selection: $selectedPlaceId) {
                     Text("選択")
@@ -451,6 +478,26 @@ private struct CourseStepEditorView: View {
         }
         newActTitle = ""
     }
+
+    private var selectedPlace: Place? {
+        guard let selectedPlaceId else { return nil }
+        return appState.places.first { $0.id == selectedPlaceId }
+    }
+
+    private var selectedPlaceName: String {
+        selectedPlace?.name ?? "Place未選択"
+    }
+
+    private var selectedPlaceSystemImage: String {
+        selectedPlace?.category.systemImage ?? "mappin.and.ellipse"
+    }
+
+    private var stepPreview: String {
+        if normalizedActTitles.isEmpty {
+            return "\(selectedPlaceName) / Act未設定"
+        }
+        return "\(selectedPlaceName) / \(normalizedActTitles.joined(separator: " / "))"
+    }
 }
 
 struct CourseCreatorView: View {
@@ -485,6 +532,19 @@ struct CourseCreatorView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: "Courseを作成",
+                    subtitle: normalizedPurpose.isEmpty ? "目的未入力" : normalizedPurpose,
+                    detail: "目的を決め、PlaceとActを組み合わせたStepを作ります。保存するとHomeのCourseに表示されます。",
+                    systemImage: "figure.walk.motion",
+                    badges: [
+                        EditorContextBadge(title: "Course", systemImage: "figure.walk.motion"),
+                        EditorContextBadge(title: "\(normalizedSteps.count) Steps", systemImage: "checklist")
+                    ]
+                )
+            }
+
             Section {
                 CourseCreationFlowView()
             }
@@ -564,6 +624,23 @@ struct CourseCreatorView: View {
             } header: {
                 Text("3. 保存後")
             }
+
+            Section {
+                EditorActionBar(
+                    canSave: canSave,
+                    onSave: {
+                        appState.createCourse(
+                            purpose: normalizedPurpose,
+                            description: normalizedDescription,
+                            steps: normalizedSteps
+                        )
+                        dismiss()
+                    },
+                    onCancel: {
+                        dismiss()
+                    }
+                )
+            }
         }
         .themedScreenBackground()
         .navigationTitle("コース作成")
@@ -571,25 +648,6 @@ struct CourseCreatorView: View {
         .onAppear {
             if stepDrafts.count == 1, stepDrafts[0].placeId == nil {
                 stepDrafts[0].placeId = appState.places.first?.id
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("キャンセル") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button("保存") {
-                    appState.createCourse(
-                        purpose: normalizedPurpose,
-                        description: normalizedDescription,
-                        steps: normalizedSteps
-                    )
-                    dismiss()
-                }
-                .disabled(!canSave)
             }
         }
     }

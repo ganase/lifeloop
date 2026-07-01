@@ -28,6 +28,19 @@ struct PlaceEditorView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: editorTitle,
+                    subtitle: displayName,
+                    detail: "通知のきっかけになる場所です。名前、カテゴリ、地図上の位置、判定半径を設定します。",
+                    systemImage: category.systemImage,
+                    badges: [
+                        EditorContextBadge(title: "Place", systemImage: "mappin.and.ellipse"),
+                        EditorContextBadge(title: category.displayName, systemImage: category.systemImage)
+                    ]
+                )
+            }
+
             Section("基本情報") {
                 TextField("場所名", text: $name)
 
@@ -87,7 +100,7 @@ struct PlaceEditorView: View {
             }
         }
         .themedScreenBackground()
-        .navigationTitle(originalPlaceId == nil ? "場所を追加" : "場所を編集")
+        .navigationTitle(editorTitle)
         .sheet(isPresented: $isMapPickerPresented) {
             MapCoordinatePickerView(
                 name: displayName,
@@ -132,6 +145,10 @@ struct PlaceEditorView: View {
     private var displayName: String {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedName.isEmpty ? "指定地点" : trimmedName
+    }
+
+    private var editorTitle: String {
+        originalPlaceId == nil ? "Placeを追加" : "Placeを編集"
     }
 }
 

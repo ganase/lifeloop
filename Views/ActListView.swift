@@ -89,29 +89,39 @@ private struct AddActView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: "Actを追加",
+                    subtitle: normalizedTitle.isEmpty ? "新しい行動" : normalizedTitle,
+                    detail: "Placeとは切り離して、行動の名前だけを作成します。StepでPlaceと組み合わせます。",
+                    systemImage: "list.bullet.rectangle",
+                    badges: [
+                        EditorContextBadge(title: "Act", systemImage: "list.bullet.rectangle")
+                    ]
+                )
+            }
+
             Section("Act") {
                 TextField("例: 鍵を確認する", text: $title, axis: .vertical)
                     .lineLimit(1...3)
+            }
+
+            Section {
+                EditorActionBar(
+                    canSave: !normalizedTitle.isEmpty,
+                    onSave: {
+                        appState.addAct(title: normalizedTitle)
+                        dismiss()
+                    },
+                    onCancel: {
+                        dismiss()
+                    }
+                )
             }
         }
         .themedScreenBackground()
         .navigationTitle("Actを追加")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("キャンセル") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button("保存") {
-                    appState.addAct(title: normalizedTitle)
-                    dismiss()
-                }
-                .disabled(normalizedTitle.isEmpty)
-            }
-        }
     }
 }
 
@@ -134,6 +144,18 @@ private struct ActEditorView: View {
 
     var body: some View {
         Form {
+            Section {
+                EditorContextHeader(
+                    title: "Actを編集",
+                    subtitle: normalizedTitle.isEmpty ? originalTitle : normalizedTitle,
+                    detail: "行動名を変更します。このActを使っているStepにも同じ名前が反映されます。",
+                    systemImage: "list.bullet.rectangle",
+                    badges: [
+                        EditorContextBadge(title: "Act", systemImage: "list.bullet.rectangle")
+                    ]
+                )
+            }
+
             Section("Act") {
                 TextField("Act", text: $draftTitle, axis: .vertical)
                     .lineLimit(1...3)
