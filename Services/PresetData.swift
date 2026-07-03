@@ -2,6 +2,7 @@ import Foundation
 
 enum PresetData {
     static let todoListCourseId = UUID(uuidString: "77777777-7777-7777-7777-777777777777")!
+    static let singleStepCourseId = UUID(uuidString: "88888888-8888-8888-8888-888888888888")!
     static let retiredPresetCourseIds: Set<UUID> = [
         UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
         UUID(uuidString: "22222222-2222-2222-2222-222222222222")!,
@@ -18,6 +19,14 @@ enum PresetData {
         id: todoListCourseId,
         name: "To do list",
         description: "思い出したい行動をActとして置いておく備忘録です。",
+        isEnabled: true,
+        targetCategories: PlaceCategory.allCases
+    )
+
+    static let singleStepCourse = HabitCourse(
+        id: singleStepCourseId,
+        name: "単発Steps",
+        description: "Courseを作らず、必要なPlaceとActだけを単発で通知するStepです。",
         isEnabled: true,
         targetCategories: PlaceCategory.allCases
     )

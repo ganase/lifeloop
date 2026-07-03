@@ -645,10 +645,28 @@ struct StepBadgeIcon: View {
     }
 }
 
+private enum StepCreationMode: String, CaseIterable, Identifiable {
+    case single
+    case course
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .single:
+            return "単発"
+        case .course:
+            return "Course"
+        }
+    }
+}
+
 private struct StepCreateView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.dismiss) private var dismiss
 
+    @State private var creationMode: StepCreationMode = .single
+    @State private var selectedCourseId: UUID?
     @State private var selectedPlaceId: UUID?
     @State private var actTitles: [String] = []
     @State private var newActTitle = ""
@@ -662,7 +680,9 @@ private struct StepCreateView: View {
     }
 
     private var canSave: Bool {
-        selectedPlaceId != nil && !normalizedActTitles.isEmpty && appState.defaultStepCourseId != nil
+        selectedPlaceId != nil &&
+            !normalizedActTitles.isEmpty &&
+            (creationMode == .single || selectedCourseId != nil)
     }
 
     var body: some View {
@@ -671,14 +691,45 @@ private struct StepCreateView: View {
                 EditorContextHeader(
                     title: "Stepを追加",
                     subtitle: stepPreview,
-                    detail: "Placeに入ったときに通知するActを組み合わせます。Stepには複数のActを入れられます。",
+                    detail: "単発ならCourseを作らず、このPlaceとActだけを通知します。Courseに含めたい場合は登録先を切り替えます。",
                     systemImage: "checklist",
                     badges: [
                         EditorContextBadge(title: "Step", systemImage: "checklist"),
+                        EditorContextBadge(title: creationMode.displayName, systemImage: creationModeSystemImage),
                         EditorContextBadge(title: "Place", systemImage: selectedPlaceSystemImage),
                         EditorContextBadge(title: "\(normalizedActTitles.count) Act", systemImage: "list.bullet.rectangle")
                     ]
                 )
+            }
+
+            Section {
+                Picker("登録先", selection: $creationMode) {
+                    ForEach(StepCreationMode.allCases) { mode in
+                        Text(mode.displayName)
+                            .tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                if creationMode == .course {
+                    Picker("Course", selection: $selectedCourseId) {
+                        Text("選択")
+                            .tag(UUID?.none)
+
+                        ForEach(appState.courses) { course in
+                            Label(course.name, systemImage: "figure.walk.motion")
+                                .tag(Optional(course.id))
+                        }
+                    }
+                } else {
+                    Label("単発Stepsに登録", systemImage: "checklist")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("登録先")
+            } footer: {
+                Text("単発Stepは、単発Stepsという自動Courseに保存されます。あとからCourse画面で無効化や削除もできます。")
             }
 
             Section("Place") {
@@ -700,10 +751,13 @@ private struct StepCreateView: View {
                     canSave: canSave,
                     onSave: {
                         guard let selectedPlaceId else { return }
-                        appState.addStep(
-                            placeId: selectedPlaceId,
-                            actTitles: normalizedActTitles
-                        )
+                        switch creationMode {
+                        case .single:
+                            appState.addSingleStep(placeId: selectedPlaceId, actTitles: normalizedActTitles)
+                        case .course:
+                            guard let selectedCourseId else { return }
+                            appState.addCourseStep(courseId: selectedCourseId, placeId: selectedPlaceId, actTitles: normalizedActTitles)
+                        }
                         dismiss()
                     },
                     onCancel: {
@@ -716,6 +770,7 @@ private struct StepCreateView: View {
         .navigationTitle("Stepを追加")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            selectedCourseId = selectedCourseId ?? appState.defaultStepCourseId
             selectedPlaceId = selectedPlaceId ?? appState.places.first?.id
         }
     }
@@ -790,11 +845,21 @@ private struct StepCreateView: View {
         selectedPlace?.category.systemImage ?? "mappin.and.ellipse"
     }
 
+    private var creationModeSystemImage: String {
+        switch creationMode {
+        case .single:
+            return "bolt.circle"
+        case .course:
+            return "figure.walk.motion"
+        }
+    }
+
     private var stepPreview: String {
         if normalizedActTitles.isEmpty {
             return "\(selectedPlaceName) / Act未設定"
         }
-        return "\(selectedPlaceName) / \(normalizedActTitles.joined(separator: " / "))"
+        let modeLabel = creationMode == .single ? "単発" : "Course"
+        return "\(modeLabel): \(selectedPlaceName) / \(normalizedActTitles.joined(separator: " / "))"
     }
 }
 
@@ -1207,17 +1272,35 @@ struct DisclosureChevron: View {
 
 struct EditorActionBar: View {
     let canSave: Bool
+    let saveTitle: String
+    let saveSystemImage: String
+    let cancelTitle: String
+    let cancelSystemImage: String
+    let deleteTitle: String
+    let deleteSystemImage: String
     let onSave: () -> Void
     let onCancel: () -> Void
     let onDelete: (() -> Void)?
 
     init(
         canSave: Bool,
+        saveTitle: String = "保存",
+        saveSystemImage: String = "checkmark",
+        cancelTitle: String = "キャンセル",
+        cancelSystemImage: String = "xmark",
+        deleteTitle: String = "削除",
+        deleteSystemImage: String = "trash",
         onSave: @escaping () -> Void,
         onCancel: @escaping () -> Void,
         onDelete: (() -> Void)? = nil
     ) {
         self.canSave = canSave
+        self.saveTitle = saveTitle
+        self.saveSystemImage = saveSystemImage
+        self.cancelTitle = cancelTitle
+        self.cancelSystemImage = cancelSystemImage
+        self.deleteTitle = deleteTitle
+        self.deleteSystemImage = deleteSystemImage
         self.onSave = onSave
         self.onCancel = onCancel
         self.onDelete = onDelete
@@ -1228,7 +1311,7 @@ struct EditorActionBar: View {
             Button {
                 onSave()
             } label: {
-                Label("保存", systemImage: "checkmark")
+                Label(saveTitle, systemImage: saveSystemImage)
             }
             .buttonStyle(.borderedProminent)
             .disabled(!canSave)
@@ -1236,7 +1319,7 @@ struct EditorActionBar: View {
             Button {
                 onCancel()
             } label: {
-                Label("キャンセル", systemImage: "xmark")
+                Label(cancelTitle, systemImage: cancelSystemImage)
             }
             .buttonStyle(.bordered)
 
@@ -1244,7 +1327,7 @@ struct EditorActionBar: View {
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
-                    Label("削除", systemImage: "trash")
+                    Label(deleteTitle, systemImage: deleteSystemImage)
                 }
                 .buttonStyle(.bordered)
             }

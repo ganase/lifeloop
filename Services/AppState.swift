@@ -197,6 +197,15 @@ final class AppState: ObservableObject {
         courses[index].targetCategories = normalizedCategories
     }
 
+    func deleteCourse(_ courseId: UUID) {
+        courses.removeAll { $0.id == courseId }
+        rules.removeAll { $0.courseId == courseId }
+
+        if focusedStepId.map({ rule(for: $0) == nil }) == true {
+            focusedStepId = nil
+        }
+    }
+
     func createCourse(purpose: String, description: String, steps: [CourseStepDraft]) {
         let normalizedPurpose = purpose.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -274,6 +283,11 @@ final class AppState: ObservableObject {
 
     func addStep(placeId: UUID, actTitles: [String]) {
         guard let courseId = defaultStepCourseId else { return }
+        addCourseStep(courseId: courseId, placeId: placeId, actTitles: actTitles)
+    }
+
+    func addSingleStep(placeId: UUID, actTitles: [String]) {
+        let courseId = ensureSingleStepCourse()
         addCourseStep(courseId: courseId, placeId: placeId, actTitles: actTitles)
     }
 
@@ -837,6 +851,7 @@ final class AppState: ObservableObject {
 
     private func normalizeCourses(_ courses: [HabitCourse]) -> [HabitCourse] {
         let presetCourse = PresetData.todoListCourse
+        let singleStepCourse = PresetData.singleStepCourse
         var normalizedCourses = courses.filter { !PresetData.retiredPresetCourseIds.contains($0.id) }
 
         if let presetIndex = normalizedCourses.firstIndex(where: { $0.id == presetCourse.id }) {
@@ -858,6 +873,25 @@ final class AppState: ObservableObject {
             normalizedCourses[presetIndex] = normalizedCourse
         } else {
             normalizedCourses.insert(presetCourse, at: 0)
+        }
+
+        if let singleStepIndex = normalizedCourses.firstIndex(where: { $0.id == singleStepCourse.id }) {
+            var normalizedCourse = normalizedCourses[singleStepIndex]
+
+            if normalizedCourse.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                normalizedCourse.name = singleStepCourse.name
+            }
+
+            if normalizedCourse.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                normalizedCourse.description = singleStepCourse.description
+            }
+
+            if normalizedCourse.targetCategories.isEmpty {
+                normalizedCourse.targetCategories = singleStepCourse.targetCategories
+            }
+
+            normalizedCourse.disabledActTitles = normalizedActTitles(normalizedCourse.disabledActTitles)
+            normalizedCourses[singleStepIndex] = normalizedCourse
         }
 
         return normalizedCourses
@@ -1047,6 +1081,30 @@ final class AppState: ObservableObject {
         )
 
         syncCourseTargetCategories(for: courseId)
+    }
+
+    private func ensureSingleStepCourse() -> UUID {
+        let template = PresetData.singleStepCourse
+
+        if let index = courses.firstIndex(where: { $0.id == template.id }) {
+            courses[index].isEnabled = true
+
+            if courses[index].name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                courses[index].name = template.name
+            }
+
+            if courses[index].description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                courses[index].description = template.description
+            }
+
+            if courses[index].targetCategories.isEmpty {
+                courses[index].targetCategories = template.targetCategories
+            }
+        } else {
+            courses.append(template)
+        }
+
+        return template.id
     }
 
     private func syncCourseTargetCategories(for courseId: UUID) {

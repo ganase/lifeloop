@@ -82,8 +82,10 @@ private struct CourseSummaryView: View {
 
 struct CourseSettingsView: View {
     @EnvironmentObject private var appState: AppState
+    @Environment(\.dismiss) private var dismiss
     @State private var isStepCreatorPresented = false
     @State private var editingStep: HabitRule?
+    @State private var isDeleteConfirmationPresented = false
 
     let courseId: UUID
 
@@ -169,6 +171,27 @@ struct CourseSettingsView: View {
                 } footer: {
                     Text("StepはPlaceとActの組み合わせです。自宅には接種系、店やレストランには外食抑制、のように分けて設定できます。")
                 }
+
+                Section {
+                    EditorActionBar(
+                        canSave: true,
+                        saveTitle: "完了",
+                        saveSystemImage: "checkmark",
+                        cancelTitle: "戻る",
+                        cancelSystemImage: "chevron.left",
+                        onSave: {
+                            dismiss()
+                        },
+                        onCancel: {
+                            dismiss()
+                        },
+                        onDelete: {
+                            isDeleteConfirmationPresented = true
+                        }
+                    )
+                } footer: {
+                    Text("Course設定は自動保存です。削除すると、このCourseに含まれるStepも削除されます。過去のLogは残ります。")
+                }
             } else {
                 ContentUnavailableView("Courseが見つかりません", systemImage: "figure.walk.motion")
             }
@@ -176,6 +199,20 @@ struct CourseSettingsView: View {
         .themedScreenBackground()
         .navigationTitle("Course編集")
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Courseを削除しますか？",
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("削除", role: .destructive) {
+                appState.deleteCourse(courseId)
+                dismiss()
+            }
+
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text(appState.course(for: courseId)?.name ?? "このCourse")
+        }
         .sheet(isPresented: $isStepCreatorPresented) {
             NavigationStack {
                 CourseStepEditorView(
