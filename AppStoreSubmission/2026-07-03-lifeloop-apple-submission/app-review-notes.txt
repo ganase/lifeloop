@@ -1,0 +1,15 @@
+lifeloop is a local-first habit notification app provided by Knock Knock 株式会社. It does not require sign-in and does not upload location, habit, or log data to a backend server.
+
+Location permission is used to register places, show the user's current location on the in-app map, and trigger local notifications when the device enters or exits registered regions. Notification permission is used only for local notifications.
+
+The app is not intended for emergency, medical, medication, driving, or safety-critical use. Local notifications may be delayed or missed depending on iOS location services, device settings, battery state, and region monitoring behavior.
+
+To test the notification flow without physically moving:
+1. Launch the app.
+2. Allow location and notification permissions.
+3. Open the Place tab.
+4. Swipe left on a place row and tap "テスト".
+5. A local notification is delivered.
+6. Open the notification to confirm that the app navigates to the Log screen.
+
+No demo account is required because the app has no account or login feature.

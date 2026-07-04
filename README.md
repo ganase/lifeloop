@@ -189,3 +189,17 @@ func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegi
 ## 13. MVP以降の拡張余地
 
 地図UI、Apple Maps/Google Maps連携、AIメッセージ生成、通知アクション拡張、習慣達成率、危険ゾーン自動検出、コース別スコアリング、共有機能、Android版は、`Models`と`Services`を保ったまま追加しやすい構成にしています。
+
+## 14. 公開用ドキュメント
+
+Knock Knock 株式会社によるApp Store公開に向けた法務・サポート文書は`docs/`に配置しています。
+
+| ファイル | 用途 |
+| --- | --- |
+| `docs/index.html` | 公開ページのトップ。 |
+| `docs/privacy.html` | App Store ConnectのPrivacy Policy URLに指定する個人情報保護方針。 |
+| `docs/terms.html` | 利用規約。 |
+| `docs/support.html` | App Store ConnectのSupport URLに指定するサポートページ。 |
+| `docs/app-store-submission.md` | App Privacy回答、Review Notes、公開前チェックの控え。 |
+
+GitHub Pagesを使う場合は、Repository Settingsで`main`ブランチの`/docs`を配信元にしてください。公開URLは`https://ganase.github.io/lifeloop/`を前提にしています。
