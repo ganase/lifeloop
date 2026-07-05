@@ -1,21 +1,22 @@
 # App Store公開準備メモ
 
-最終更新日: 2026年7月3日
+最終更新日: 2026年7月5日
 
 このメモは、Knock Knock 株式会社が提供する現在のlifeloop実装を前提にしたApp Store Connect入力用の控えです。サーバー送信、アカウント、広告、分析SDK、外部SDKを追加した場合は、プライバシー回答と公開文書を更新してください。
 
 ## 公開ページURL
 
-GitHub Pagesを `main` ブランチの `/docs` から配信する前提です。
+会社ホームページ `https://www.knockknock.at/` に `docs/` の内容を配置する前提です。会社共通ページはサイト直下、lifeloopのApp Store Connect用ページは `/lifeloop/` 配下に置きます。
 
 | 用途 | URL |
 | --- | --- |
-| トップ | `https://ganase.github.io/lifeloop/` |
-| Privacy Policy URL | `https://ganase.github.io/lifeloop/privacy.html` |
-| Support URL | `https://ganase.github.io/lifeloop/support.html` |
-| Terms URL | `https://ganase.github.io/lifeloop/terms.html` |
+| 会社共通トップ | `https://www.knockknock.at/` |
+| lifeloopトップ / Marketing URL | `https://www.knockknock.at/lifeloop/` |
+| Privacy Policy URL | `https://www.knockknock.at/lifeloop/privacy.html` |
+| Support URL | `https://www.knockknock.at/lifeloop/support.html` |
+| Terms URL | `https://www.knockknock.at/lifeloop/terms.html` |
 
-GitHub Pagesをまだ有効化していない場合は、GitHubのRepository SettingsからPagesを有効化し、Sourceを `Deploy from a branch`、Branchを `main`、Folderを `/docs` にしてください。
+静的ホスティングにアップロードする場合は、`docs/index.html` を `https://www.knockknock.at/`、`docs/lifeloop/index.html` を `https://www.knockknock.at/lifeloop/` で開ける配置にしてください。
 
 ## App Privacy回答案
 
@@ -63,7 +64,7 @@ To test the notification flow without physically moving:
 
 ## 公開前チェック
 
-- GitHub Pagesで `privacy.html` と `support.html` がブラウザからアクセスできることを確認する。
+- `https://www.knockknock.at/lifeloop/privacy.html` と `https://www.knockknock.at/lifeloop/support.html` がブラウザからアクセスできることを確認する。
 - App Store ConnectのPrivacy Policy URLとSupport URLに公開URLを入力する。
 - App Store ConnectのApp Privacy回答が、現在の実装と一致していることを確認する。
 - App Store上の販売元/提供者名、サポート窓口、問い合わせ導線がKnock Knock 株式会社の実態と一致していることを確認する。

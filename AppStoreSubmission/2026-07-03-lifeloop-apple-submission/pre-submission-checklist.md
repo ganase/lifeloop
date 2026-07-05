@@ -6,17 +6,17 @@
 
 ## 公開ページ
 
-- [ ] GitHub Pagesを `main` / `/docs` で有効化した。
-- [ ] `https://ganase.github.io/lifeloop/privacy.html` がログインなしで開ける。
-- [ ] `https://ganase.github.io/lifeloop/support.html` がログインなしで開ける。
-- [ ] `https://ganase.github.io/lifeloop/terms.html` がログインなしで開ける。
+- [ ] `docs/` の内容を `https://www.knockknock.at/` 配下に配置した。
+- [ ] `https://www.knockknock.at/lifeloop/privacy.html` がログインなしで開ける。
+- [ ] `https://www.knockknock.at/lifeloop/support.html` がログインなしで開ける。
+- [ ] `https://www.knockknock.at/lifeloop/terms.html` がログインなしで開ける。
 - [ ] 公開ページ内の提供者が `Knock Knock 株式会社` になっている。
 - [ ] 問い合わせ先が `https://github.com/ganase/lifeloop/issues` になっている。
 
 ## App Store Connect
 
-- [ ] Privacy Policy URLに `https://ganase.github.io/lifeloop/privacy.html` を入力した。
-- [ ] Support URLに `https://ganase.github.io/lifeloop/support.html` を入力した。
+- [ ] Privacy Policy URLに `https://www.knockknock.at/lifeloop/privacy.html` を入力した。
+- [ ] Support URLに `https://www.knockknock.at/lifeloop/support.html` を入力した。
 - [ ] App Privacy回答を現行実装と照合した。
 - [ ] Review Notesに `app-review-notes.txt` の内容を貼り付けた。
 - [ ] デモアカウント不要として提出した。

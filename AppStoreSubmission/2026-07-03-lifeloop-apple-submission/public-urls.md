@@ -4,21 +4,22 @@
 対象アプリ: lifeloop
 提供者: Knock Knock 株式会社
 
-GitHub Pagesを `main` ブランチの `/docs` から配信する前提です。
+会社ホームページ `https://www.knockknock.at/` に `docs/` の内容を配置する前提です。
 
 | 用途 | URL |
 | --- | --- |
-| 法務・サポートトップ | https://ganase.github.io/lifeloop/ |
-| Privacy Policy URL | https://ganase.github.io/lifeloop/privacy.html |
-| Support URL | https://ganase.github.io/lifeloop/support.html |
-| Terms URL | https://ganase.github.io/lifeloop/terms.html |
+| 会社共通 法務・サポートトップ | https://www.knockknock.at/ |
+| lifeloop 法務・サポートトップ | https://www.knockknock.at/lifeloop/ |
+| Privacy Policy URL | https://www.knockknock.at/lifeloop/privacy.html |
+| Support URL | https://www.knockknock.at/lifeloop/support.html |
+| Terms URL | https://www.knockknock.at/lifeloop/terms.html |
 | GitHub Issues | https://github.com/ganase/lifeloop/issues |
 
 ## App Store Connectへの入力
 
-- Privacy Policy URL: `https://ganase.github.io/lifeloop/privacy.html`
-- Support URL: `https://ganase.github.io/lifeloop/support.html`
-- Marketing URL: `https://ganase.github.io/lifeloop/`
+- Privacy Policy URL: `https://www.knockknock.at/lifeloop/privacy.html`
+- Support URL: `https://www.knockknock.at/lifeloop/support.html`
+- Marketing URL: `https://www.knockknock.at/lifeloop/`
 
 ## 提出前確認
 
