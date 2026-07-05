@@ -3,40 +3,138 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>lifeloop 法務・サポート | Knock Knock 株式会社</title>
+  <title>lifeloop beta | 場所で思い出す小さな習慣</title>
+  <meta name="description" content="lifeloop betaは、場所と行動を組み合わせて、必要なタイミングで小さな習慣をローカル通知するiOSアプリです。">
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-  <main>
-    <h1>lifeloop 法務・サポート</h1>
-    <p class="lead">Knock Knock 株式会社が提供するiOSアプリ「lifeloop」の利用規約、個人情報保護方針、サポート情報を掲載しています。</p>
+  <main class="product-page">
+    <header class="product-hero" aria-labelledby="app-title">
+      <img class="app-icon" src="assets/app-icon.png" width="128" height="128" alt="lifeloop app icon">
+      <div class="product-heading">
+        <p class="eyebrow">Beta Preview</p>
+        <h1 id="app-title">lifeloop</h1>
+        <p class="subtitle">場所で思い出す小さな習慣</p>
+        <p class="lead">場所に着いたタイミングで、その場でやる小さな行動を端末内のローカル通知として表示します。登録データは端末内に保存され、アカウント登録は不要です。</p>
+        <div class="hero-actions" aria-label="lifeloop beta links">
+          <a class="button-link primary-link" href="support.html">サポート</a>
+          <a class="button-link" href="privacy.html">プライバシー</a>
+          <a class="button-link" href="terms.html">利用規約</a>
+        </div>
+      </div>
+    </header>
 
-    <nav aria-label="lifeloop 公開文書">
+    <section class="app-store-section" aria-labelledby="urls-title">
+      <div class="section-heading">
+        <p class="eyebrow">Public URLs</p>
+        <h2 id="urls-title">App Store Connect向けURL</h2>
+        <p>App Store Connectには、以下のlifeloop個別ページを指定できます。</p>
+      </div>
+      <ul class="feature-list">
+        <li>Privacy Policy URL: <a href="privacy.html">https://www.knockknock.at/lifeloop/privacy.html</a></li>
+        <li>Support URL: <a href="support.html">https://www.knockknock.at/lifeloop/support.html</a></li>
+        <li>Marketing URL: <a href="./">https://www.knockknock.at/lifeloop/</a></li>
+        <li>会社共通ページ: <a href="../">https://www.knockknock.at/</a></li>
+      </ul>
+    </section>
+
+    <section class="app-store-section" aria-labelledby="screens-title">
+      <div class="section-heading">
+        <p class="eyebrow">Screenshots</p>
+        <h2 id="screens-title">紹介画面サンプル</h2>
+        <p>App Store提出用に作成した実画面ベースのスクリーンショットを、beta紹介ページ用に最適化して掲載しています。</p>
+      </div>
+      <div class="screenshot-strip" aria-label="lifeloop screen samples">
+        <figure>
+          <img src="assets/screens/01-home-map.png" width="442" height="960" alt="lifeloop Home screen with map and course summary">
+          <figcaption>Home: 地図とCourseで今日の通知条件を確認</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screens/02-place.png" width="442" height="960" alt="lifeloop Place list screen">
+          <figcaption>Place: 場所を登録し、テスト通知を実行</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screens/03-act.png" width="442" height="960" alt="lifeloop Act list screen">
+          <figcaption>Act: 通知したい小さな行動を管理</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screens/04-steps.png" width="442" height="960" alt="lifeloop Steps setup screen">
+          <figcaption>Steps: PlaceとActを組み合わせて条件化</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screens/05-log.png" width="442" height="960" alt="lifeloop Log response screen">
+          <figcaption>Log: 実施、非実施、スヌーズを記録</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="app-store-section media-section" aria-labelledby="preview-title">
+      <div class="section-heading">
+        <p class="eyebrow">Preview</p>
+        <h2 id="preview-title">beta紹介動画</h2>
+        <p>画面サンプルをつないだ短いプレビューです。TestFlight案内やSNS掲載前の確認用として使えます。</p>
+      </div>
+      <video class="preview-video" controls muted playsinline preload="metadata" poster="assets/screens/01-home-map.png">
+        <source src="assets/lifeloop-beta-preview.mp4" type="video/mp4">
+      </video>
+    </section>
+
+    <section class="app-store-section" aria-labelledby="description-title">
+      <div class="section-heading">
+        <p class="eyebrow">Description</p>
+        <h2 id="description-title">アプリ紹介文</h2>
+      </div>
+      <div class="description-copy">
+        <p>lifeloopは、場所と行動を組み合わせて、必要なタイミングで小さな習慣を思い出すためのiOSアプリです。</p>
+        <p>自宅、駅、ジム、職場などのPlaceを登録し、それぞれの場所で取り組みたいActを設定できます。登録地点への到着や離脱をきっかけに、端末内のローカル通知で次の行動を知らせます。</p>
+      </div>
+      <ul class="feature-list">
+        <li>Place、Act、Course、Stepを組み合わせた習慣通知</li>
+        <li>登録地点への到着・離脱をきっかけにしたローカル通知</li>
+        <li>Placeごとの通知テスト</li>
+        <li>通知後のLog記録</li>
+        <li>実施・非実施、スヌーズの記録</li>
+        <li>アカウント登録なし</li>
+        <li>独自サーバーへの位置情報・履歴送信なし</li>
+      </ul>
+      <p class="notice">lifeloopは、医療、服薬、緊急、安全管理など、通知の失敗が重大な結果につながる用途を目的としたアプリではありません。重要な予定や安全に関わる確認は、lifeloopだけに依存せず、別の方法でも確認してください。</p>
+    </section>
+
+    <section class="app-store-section" aria-labelledby="details-title">
+      <div class="section-heading">
+        <p class="eyebrow">Information</p>
+        <h2 id="details-title">beta版情報</h2>
+      </div>
+      <dl class="app-details">
+        <div>
+          <dt>アプリ名</dt>
+          <dd>lifeloop</dd>
+        </div>
+        <div>
+          <dt>サブタイトル</dt>
+          <dd>場所で思い出す小さな習慣</dd>
+        </div>
+        <div>
+          <dt>カテゴリ</dt>
+          <dd>ライフスタイル / 仕事効率化</dd>
+        </div>
+        <div>
+          <dt>データ</dt>
+          <dd>端末内保存、アカウント登録なし</dd>
+        </div>
+        <div>
+          <dt>提供者</dt>
+          <dd>Knock Knock 株式会社</dd>
+        </div>
+      </dl>
+    </section>
+
+    <nav class="footer-nav" aria-label="lifeloop public documents">
       <a href="privacy.html">個人情報保護方針</a>
       <a href="terms.html">利用規約</a>
       <a href="support.html">サポート</a>
       <a href="../">会社共通ページ</a>
     </nav>
-
-    <section>
-      <h2>lifeloopについて</h2>
-      <p>lifeloopは、登録した場所への到着や離脱をきっかけに、その場で取り組みやすい行動を端末内のローカル通知として表示するiOSアプリです。</p>
-      <p>アカウント登録、広告、外部分析SDK、独自サーバーへのデータ送信はありません。場所、行動、通知履歴などのデータは利用者の端末内に保存されます。</p>
-    </section>
-
-    <section>
-      <h2>App Store Connect向けURL</h2>
-      <ul>
-        <li>Privacy Policy URL: <a href="privacy.html">https://www.knockknock.at/lifeloop/privacy.html</a></li>
-        <li>Support URL: <a href="support.html">https://www.knockknock.at/lifeloop/support.html</a></li>
-        <li>Marketing URL: <a href="./">https://www.knockknock.at/lifeloop/</a></li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>提供者</h2>
-      <p>Knock Knock 株式会社</p>
-    </section>
 
     <footer>
       <p>最終更新日: 2026年7月5日</p>
