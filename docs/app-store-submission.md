@@ -6,17 +6,17 @@
 
 ## 公開ページURL
 
-GitHub Pages `https://knockknock-at.github.io/lifeloop/` で公開している文書をApp Store Connectに指定します。会社共通ページはサイト直下、lifeloopのApp Store Connect用ページは `/lifeloop/` 配下に置いています。
+GitHub Pages `https://knockknock-at.github.io/lifeloop/docs/` で公開している文書をApp Store Connectに指定します。会社共通ページは `/docs/`、lifeloopのApp Store Connect用ページは `/docs/lifeloop/` 配下に置いています。
 
 | 用途 | URL |
 | --- | --- |
-| 会社共通トップ | `https://knockknock-at.github.io/lifeloop/` |
-| lifeloopトップ / Marketing URL | `https://knockknock-at.github.io/lifeloop/lifeloop/` |
-| Privacy Policy URL | `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` |
-| Support URL | `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` |
-| Terms URL | `https://knockknock-at.github.io/lifeloop/lifeloop/terms.html` |
+| 会社共通トップ | `https://knockknock-at.github.io/lifeloop/docs/` |
+| lifeloopトップ / Marketing URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/` |
+| Privacy Policy URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` |
+| Support URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` |
+| Terms URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/terms.html` |
 
-GitHub Pagesではリポジトリ名 `lifeloop` がURLに入るため、`docs/lifeloop/index.html` は `https://knockknock-at.github.io/lifeloop/lifeloop/` で開きます。
+GitHub Pagesではリポジトリ名 `lifeloop` がURLに入り、現在はリポジトリルート公開のため、`docs/lifeloop/index.html` は `https://knockknock-at.github.io/lifeloop/docs/lifeloop/` で開きます。
 
 ## App Privacy回答案
 
@@ -64,7 +64,7 @@ To test the notification flow without physically moving:
 
 ## 公開前チェック
 
-- `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` と `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` がブラウザからアクセスできることを確認する。
+- `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` と `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` がブラウザからアクセスできることを確認する。
 - App Store ConnectのPrivacy Policy URLとSupport URLに公開URLを入力する。
 - App Store ConnectのApp Privacy回答が、現在の実装と一致していることを確認する。
 - App Store上の販売元/提供者名、サポート窓口、問い合わせ導線がKnock Knock 株式会社の実態と一致していることを確認する。

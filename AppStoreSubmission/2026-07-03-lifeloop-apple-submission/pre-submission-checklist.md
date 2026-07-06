@@ -6,17 +6,17 @@
 
 ## 公開ページ
 
-- [ ] `https://knockknock-at.github.io/lifeloop/` がログインなしで開ける。
-- [ ] `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` がログインなしで開ける。
-- [ ] `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` がログインなしで開ける。
-- [ ] `https://knockknock-at.github.io/lifeloop/lifeloop/terms.html` がログインなしで開ける。
+- [ ] `https://knockknock-at.github.io/lifeloop/docs/` がログインなしで開ける。
+- [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` がログインなしで開ける。
+- [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` がログインなしで開ける。
+- [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/terms.html` がログインなしで開ける。
 - [ ] 公開ページ内の提供者が `Knock Knock 株式会社` になっている。
 - [ ] 問い合わせ先が `https://github.com/knockknock-at/lifeloop/issues` になっている。
 
 ## App Store Connect
 
-- [ ] Privacy Policy URLに `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` を入力した。
-- [ ] Support URLに `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` を入力した。
+- [ ] Privacy Policy URLに `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` を入力した。
+- [ ] Support URLに `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` を入力した。
 - [ ] App Privacy回答を現行実装と照合した。
 - [ ] Review Notesに `app-review-notes.txt` の内容を貼り付けた。
 - [ ] デモアカウント不要として提出した。

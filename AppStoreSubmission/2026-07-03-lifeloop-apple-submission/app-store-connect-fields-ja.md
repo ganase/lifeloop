@@ -14,9 +14,9 @@
 | セカンダリカテゴリ | 仕事効率化 |
 | 年齢制限 | 4+想定。ただしApp Store Connectの年齢レーティング質問に実装どおり回答して確定する。 |
 | Copyright | © 2026 Knock Knock 株式会社 |
-| Privacy Policy URL | https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html |
-| Support URL | https://knockknock-at.github.io/lifeloop/lifeloop/support.html |
-| Marketing URL | https://knockknock-at.github.io/lifeloop/lifeloop/ |
+| Privacy Policy URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html |
+| Support URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html |
+| Marketing URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/ |
 
 ## プロモーションテキスト案
 
