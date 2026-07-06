@@ -415,6 +415,13 @@ private struct PermissionAction {
     let systemImage: String
 }
 
+private enum PublicDocumentLinks {
+    static let lifeloopTop = URL(string: "https://knockknock-at.github.io/lifeloop/lifeloop/")!
+    static let privacyPolicy = URL(string: "https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html")!
+    static let terms = URL(string: "https://knockknock-at.github.io/lifeloop/lifeloop/terms.html")!
+    static let support = URL(string: "https://knockknock-at.github.io/lifeloop/lifeloop/support.html")!
+}
+
 private struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -498,6 +505,24 @@ private struct SettingsView: View {
                 Section("プライバシー") {
                     Text("登録地点、Act設定、Stepsの履歴は端末内のApplication Supportに保存します。")
                     Text("このMVPはサーバー送信やアカウント連携を持たず、位置情報やStepsの履歴を外部へアップロードしません。")
+                }
+
+                Section("法務・サポート") {
+                    Link(destination: PublicDocumentLinks.privacyPolicy) {
+                        Label("プライバシーポリシー", systemImage: "hand.raised")
+                    }
+
+                    Link(destination: PublicDocumentLinks.support) {
+                        Label("サポート", systemImage: "questionmark.circle")
+                    }
+
+                    Link(destination: PublicDocumentLinks.terms) {
+                        Label("利用規約", systemImage: "doc.text")
+                    }
+
+                    Link(destination: PublicDocumentLinks.lifeloopTop) {
+                        Label("lifeloop公式ページ", systemImage: "safari")
+                    }
                 }
 
                 Section("サポート") {

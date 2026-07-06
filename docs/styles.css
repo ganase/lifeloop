@@ -231,10 +231,12 @@ a {
 }
 
 .feature-list li {
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
   padding: 10px 12px;
+  overflow-wrap: anywhere;
 }
 
 .app-details {

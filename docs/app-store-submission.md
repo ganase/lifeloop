@@ -6,17 +6,17 @@
 
 ## 公開ページURL
 
-会社ホームページ `https://www.knockknock.at/` に `docs/` の内容を配置する前提です。会社共通ページはサイト直下、lifeloopのApp Store Connect用ページは `/lifeloop/` 配下に置きます。
+GitHub Pages `https://knockknock-at.github.io/lifeloop/` で公開している文書をApp Store Connectに指定します。会社共通ページはサイト直下、lifeloopのApp Store Connect用ページは `/lifeloop/` 配下に置いています。
 
 | 用途 | URL |
 | --- | --- |
-| 会社共通トップ | `https://www.knockknock.at/` |
-| lifeloopトップ / Marketing URL | `https://www.knockknock.at/lifeloop/` |
-| Privacy Policy URL | `https://www.knockknock.at/lifeloop/privacy.html` |
-| Support URL | `https://www.knockknock.at/lifeloop/support.html` |
-| Terms URL | `https://www.knockknock.at/lifeloop/terms.html` |
+| 会社共通トップ | `https://knockknock-at.github.io/lifeloop/` |
+| lifeloopトップ / Marketing URL | `https://knockknock-at.github.io/lifeloop/lifeloop/` |
+| Privacy Policy URL | `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` |
+| Support URL | `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` |
+| Terms URL | `https://knockknock-at.github.io/lifeloop/lifeloop/terms.html` |
 
-静的ホスティングにアップロードする場合は、`docs/index.html` を `https://www.knockknock.at/`、`docs/lifeloop/index.html` を `https://www.knockknock.at/lifeloop/` で開ける配置にしてください。
+GitHub Pagesではリポジトリ名 `lifeloop` がURLに入るため、`docs/lifeloop/index.html` は `https://knockknock-at.github.io/lifeloop/lifeloop/` で開きます。
 
 ## App Privacy回答案
 
@@ -64,7 +64,7 @@ To test the notification flow without physically moving:
 
 ## 公開前チェック
 
-- `https://www.knockknock.at/lifeloop/privacy.html` と `https://www.knockknock.at/lifeloop/support.html` がブラウザからアクセスできることを確認する。
+- `https://knockknock-at.github.io/lifeloop/lifeloop/privacy.html` と `https://knockknock-at.github.io/lifeloop/lifeloop/support.html` がブラウザからアクセスできることを確認する。
 - App Store ConnectのPrivacy Policy URLとSupport URLに公開URLを入力する。
 - App Store ConnectのApp Privacy回答が、現在の実装と一致していることを確認する。
 - App Store上の販売元/提供者名、サポート窓口、問い合わせ導線がKnock Knock 株式会社の実態と一致していることを確認する。
