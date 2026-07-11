@@ -3,6 +3,7 @@
 作成日: 2026-07-03
 対象アプリ: lifeloop
 提供者: Knock Knock 株式会社
+Bundle ID: at.knockknock.lifeloop
 
 GitHub Pages `https://knockknock-at.github.io/lifeloop/docs/` に公開している文書を使う前提です。
 

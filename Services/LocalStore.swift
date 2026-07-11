@@ -2,7 +2,6 @@ import Foundation
 
 final class LocalStore {
     private static let directoryName = "lifeloop"
-    private static let legacyDirectoryName = "Spotus"
 
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
@@ -44,12 +43,6 @@ final class LocalStore {
         let rootURL = fileManager
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let url = rootURL.appendingPathComponent(Self.directoryName, isDirectory: true)
-        let legacyURL = rootURL.appendingPathComponent(Self.legacyDirectoryName, isDirectory: true)
-
-        if !fileManager.fileExists(atPath: url.path),
-           fileManager.fileExists(atPath: legacyURL.path) {
-            try? fileManager.copyItem(at: legacyURL, to: url)
-        }
 
         try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
         return url

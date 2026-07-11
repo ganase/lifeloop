@@ -2,7 +2,15 @@
 
 最終更新日: 2026年7月5日
 
-このメモは、Knock Knock 株式会社が提供する現在のlifeloop実装を前提にしたApp Store Connect入力用の控えです。サーバー送信、アカウント、広告、分析SDK、外部SDKを追加した場合は、プライバシー回答と公開文書を更新してください。
+このメモは、Knock Knock 株式会社が提供する現在のlifeloop実装を前提にしたApp Store Connect入力用の開発控えです。ユーザー向け公開ページには掲載せず、提出作業時は `docs/development/app-store-connect.md` を主な参照先にしてください。サーバー送信、アカウント、広告、分析SDK、外部SDKを追加した場合は、プライバシー回答と公開文書を更新してください。
+
+## Bundle ID
+
+| 項目 | 値 |
+| --- | --- |
+| Product Bundle Identifier | `at.knockknock.lifeloop` |
+| Development Team | `34HY3FLLN6` |
+| Display Name | `lifeloop` |
 
 ## 公開ページURL
 
@@ -70,6 +78,7 @@ To test the notification flow without physically moving:
 - App Store上の販売元/提供者名、サポート窓口、問い合わせ導線がKnock Knock 株式会社の実態と一致していることを確認する。
 - 位置情報と通知の許可説明が、アプリ内表示、`Info.plist`、公開文書で矛盾していないことを確認する。
 - 実機で、位置情報許可、通知許可、Placeのテスト通知、Log画面遷移を確認する。
+- `PRODUCT_BUNDLE_IDENTIFIER` が `at.knockknock.lifeloop` になっていることを確認する。
 - 利用規約と個人情報保護方針は、公開前に事業者情報と配信地域に照らして最終確認する。
 
 ## 参照した公式情報

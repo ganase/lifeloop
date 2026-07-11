@@ -37,7 +37,7 @@
 
 ## 注意して見る項目
 
-- [ ] `PRODUCT_BUNDLE_IDENTIFIER` がApp Store ConnectのBundle IDと一致している。
+- [ ] `PRODUCT_BUNDLE_IDENTIFIER` が `at.knockknock.lifeloop` で、App Store ConnectのBundle IDと一致している。
 - [ ] 販売元/提供者名がKnock Knock 株式会社の実態と一致している。
 - [ ] App Privacyの `Data Collected: No` が現行実装と矛盾していない。
 - [ ] Appleから追加説明を求められた場合は、`location-and-notification-explanation.md` をもとに回答する。
