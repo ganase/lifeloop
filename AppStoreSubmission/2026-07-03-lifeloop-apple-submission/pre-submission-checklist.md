@@ -1,23 +1,30 @@
 # 提出前チェックリスト
 
 作成日: 2026-07-03
+更新日: 2026-07-12
 対象アプリ: lifeloop
 提供者: Knock Knock 株式会社
 
 ## 公開ページ
 
+- [ ] `https://www.knockknock.at/products/lifeloop` がログインなしで開ける。
 - [ ] `https://knockknock-at.github.io/lifeloop/docs/` がログインなしで開ける。
 - [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` がログインなしで開ける。
 - [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` がログインなしで開ける。
 - [ ] `https://knockknock-at.github.io/lifeloop/docs/lifeloop/terms.html` がログインなしで開ける。
+- [ ] 商品ページからlifeloopの説明、プライバシー、サポート情報へログインなしで到達できる。
 - [ ] 公開ページ内の提供者が `Knock Knock 株式会社` になっている。
 - [ ] 問い合わせ先が `https://github.com/knockknock-at/lifeloop/issues` になっている。
 
 ## App Store Connect
 
+- [ ] Marketing URLに `https://www.knockknock.at/products/lifeloop` を入力した。
 - [ ] Privacy Policy URLに `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` を入力した。
 - [ ] Support URLに `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` を入力した。
+- [ ] `AppStoreScreenshots/final/` の5枚を表示順どおりアップロードした。
 - [ ] App Privacy回答を現行実装と照合した。
+- [ ] 年齢レーティング質問に実装どおり回答した。
+- [ ] 輸出コンプライアンス/暗号化質問に現行実装どおり回答した。
 - [ ] Review Notesに `app-review-notes.txt` の内容を貼り付けた。
 - [ ] デモアカウント不要として提出した。
 - [ ] App Review Contact InformationにKnock Knock 株式会社として対応できる連絡先を入力した。

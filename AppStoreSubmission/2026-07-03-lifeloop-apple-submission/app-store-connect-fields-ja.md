@@ -1,6 +1,7 @@
 # App Store Connect入力案
 
 作成日: 2026-07-03
+更新日: 2026-07-12
 対象アプリ: lifeloop
 提供者: Knock Knock 株式会社
 
@@ -17,7 +18,19 @@
 | Bundle ID | at.knockknock.lifeloop |
 | Privacy Policy URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html |
 | Support URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html |
-| Marketing URL | https://knockknock-at.github.io/lifeloop/docs/lifeloop/ |
+| Marketing URL | https://www.knockknock.at/products/lifeloop |
+
+## スクリーンショット
+
+`AppStoreScreenshots/final/` のPNGを、表示順どおりApp Store Connectにアップロードしてください。
+
+| 表示順 | ファイル |
+| --- | --- |
+| 1 | `01_home_map.png` |
+| 2 | `02_place.png` |
+| 3 | `03_act.png` |
+| 4 | `04_steps.png` |
+| 5 | `05_log.png` |
 
 ## プロモーションテキスト案
 

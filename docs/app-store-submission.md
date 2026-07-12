@@ -1,6 +1,6 @@
 # App Store公開準備メモ
 
-最終更新日: 2026年7月5日
+最終更新日: 2026年7月12日
 
 このメモは、Knock Knock 株式会社が提供する現在のlifeloop実装を前提にしたApp Store Connect入力用の開発控えです。ユーザー向け公開ページには掲載せず、提出作業時は `docs/development/app-store-connect.md` を主な参照先にしてください。サーバー送信、アカウント、広告、分析SDK、外部SDKを追加した場合は、プライバシー回答と公開文書を更新してください。
 
@@ -14,12 +14,13 @@
 
 ## 公開ページURL
 
-GitHub Pages `https://knockknock-at.github.io/lifeloop/docs/` で公開している文書をApp Store Connectに指定します。会社共通ページは `/docs/`、lifeloopのApp Store Connect用ページは `/docs/lifeloop/` 配下に置いています。
+Knock Knockの商品ページをApp Store ConnectのMarketing URLとして使います。Privacy Policy URLとSupport URLは、審査で直接確認しやすいGitHub PagesのHTML直URLを使います。会社共通ページは `/docs/`、lifeloopの個別ページは `/docs/lifeloop/` 配下に置いています。
 
 | 用途 | URL |
 | --- | --- |
+| Product / Marketing URL | `https://www.knockknock.at/products/lifeloop` |
 | 会社共通トップ | `https://knockknock-at.github.io/lifeloop/docs/` |
-| lifeloopトップ / Marketing URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/` |
+| lifeloopドキュメント直URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/` |
 | Privacy Policy URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` |
 | Support URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` |
 | Terms URL | `https://knockknock-at.github.io/lifeloop/docs/lifeloop/terms.html` |
@@ -72,8 +73,9 @@ To test the notification flow without physically moving:
 
 ## 公開前チェック
 
+- `https://www.knockknock.at/products/lifeloop` がブラウザからアクセスできることを確認する。
 - `https://knockknock-at.github.io/lifeloop/docs/lifeloop/privacy.html` と `https://knockknock-at.github.io/lifeloop/docs/lifeloop/support.html` がブラウザからアクセスできることを確認する。
-- App Store ConnectのPrivacy Policy URLとSupport URLに公開URLを入力する。
+- App Store ConnectのMarketing URL、Privacy Policy URL、Support URLに公開URLを入力する。
 - App Store ConnectのApp Privacy回答が、現在の実装と一致していることを確認する。
 - App Store上の販売元/提供者名、サポート窓口、問い合わせ導線がKnock Knock 株式会社の実態と一致していることを確認する。
 - 位置情報と通知の許可説明が、アプリ内表示、`Info.plist`、公開文書で矛盾していないことを確認する。

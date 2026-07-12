@@ -17,6 +17,7 @@
 | `location-and-notification-explanation.md` | 位置情報・通知利用目的の説明。 |
 | `export-compliance.md` | 輸出コンプライアンス/暗号化質問の判断メモ。 |
 | `public-urls.md` | Privacy Policy URL、Support URL、Terms URLの控え。 |
+| `human-action-checklist.md` | Apple Developer/App Store Connect上で人間が実施する作業。 |
 | `pre-submission-checklist.md` | 提出前チェックリスト。 |
 
 ## 重要な前提
